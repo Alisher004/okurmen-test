@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
 import Image from "next/image"
@@ -10,7 +10,7 @@ import Toast from "@/components/ui/Toast"
 import { useLanguage } from "@/contexts/LanguageContext"
 import LanguageSwitcher from "@/components/LanguageSwitcher"
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const testId = searchParams.get("testId")
@@ -283,5 +283,20 @@ export default function RegisterPage() {
         type={toast.type}
       />
     </>
+  )
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#f99703' }}></div>
+          <p style={{ color: '#111f5e', opacity: 0.7 }}>Загрузка...</p>
+        </div>
+      </div>
+    }>
+      <RegisterForm />
+    </Suspense>
   )
 }

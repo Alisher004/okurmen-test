@@ -8,6 +8,7 @@ import Link from "next/link"
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from "lucide-react"
 import Toast from "@/components/ui/Toast"
 import ReactMarkdown from "react-markdown"
+import { useLanguage } from "@/contexts/LanguageContext"
 
 interface Option {
   id: string
@@ -33,6 +34,7 @@ interface Test {
 export default function TestPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { data: session, status } = useSession()
+  const { t } = useLanguage()
   const [testId, setTestId] = useState<string>("")
   const [test, setTest] = useState<Test | null>(null)
   const [loading, setLoading] = useState(true)
@@ -70,7 +72,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
       if (attemptData.hasAttempt) {
         setToast({
           isOpen: true,
-          message: "Вы уже прошли этот тест",
+          message: t.alreadyTaken,
           type: "error"
         })
         setTimeout(() => router.push("/"), 2000)
@@ -79,14 +81,14 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
 
       // Load test data
       const response = await fetch(`/api/test/${testId}`)
-      if (!response.ok) throw new Error("Тест не найден")
+      if (!response.ok) throw new Error(t.testNotFound)
 
       const data = await response.json()
       setTest(data)
     } catch (error: any) {
       setToast({
         isOpen: true,
-        message: error.message || "Ошибка загрузки теста",
+        message: error.message || t.errorLoadingTest,
         type: "error"
       })
       setTimeout(() => router.push("/"), 2000)
@@ -119,7 +121,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
     if (unansweredCount > 0) {
       setToast({
         isOpen: true,
-        message: `Пожалуйста, ответьте на все вопросы (осталось: ${unansweredCount})`,
+        message: `${t.answerAllQuestions} (${t.questionsLeft}: ${unansweredCount})`,
         type: "error"
       })
       return
@@ -134,13 +136,13 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
         body: JSON.stringify({ answers })
       })
 
-      if (!response.ok) throw new Error("Ошибка отправки теста")
+      if (!response.ok) throw new Error(t.errorSubmittingTest)
 
       const result = await response.json()
 
       setToast({
         isOpen: true,
-        message: `Тест завершен! Ваш результат: ${result.score}%`,
+        message: `${t.testCompleted}: ${result.score}%`,
         type: "success"
       })
 
@@ -148,7 +150,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
     } catch (error: any) {
       setToast({
         isOpen: true,
-        message: error.message || "Ошибка отправки теста",
+        message: error.message || t.errorSubmittingTest,
         type: "error"
       })
     } finally {
@@ -161,7 +163,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Загрузка теста...</p>
+          <p className="text-gray-600">{t.loadingTest}</p>
         </div>
       </div>
     )
@@ -277,7 +279,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                     onChange={(e) =>
                       handleAnswer(currentQuestion.id, e.target.value)
                     }
-                    placeholder="Введите ваш ответ..."
+                    placeholder={t.enterAnswer}
                     rows={6}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl transition-all resize-none"
                     style={{ 
@@ -299,7 +301,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                 className="flex items-center gap-2 px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               >
                 <ArrowLeft size={20} />
-                Назад
+                {t.back}
               </button>
 
               {isLastQuestion ? (
@@ -312,7 +314,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                   onMouseLeave={(e) => !submitting && (e.currentTarget.style.backgroundColor = '#10b981')}
                 >
                   <CheckCircle2 size={20} />
-                  {submitting ? "Отправка..." : "Завершить тест"}
+                  {submitting ? t.submitting : t.finishTest}
                 </button>
               ) : (
                 <button
@@ -322,7 +324,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e08902'}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f99703'}
                 >
-                  Далее
+                  {t.next}
                   <ArrowRight size={20} />
                 </button>
               )}
@@ -332,7 +334,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
           {/* Question Navigator */}
           <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-sm font-semibold mb-4" style={{ color: '#111f5e' }}>
-              Навигация по вопросам
+              {t.questionNavigation}
             </h3>
             <div className="grid grid-cols-10 gap-2">
               {test.questions.map((q, index) => (

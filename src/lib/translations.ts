@@ -83,6 +83,15 @@ export const translations = {
     goToTests: 'Перейти к тестам',
     result: 'Результат',
     checking: 'Проверяется',
+    
+    // Test taking page
+    alreadyTaken: 'Вы уже прошли этот тест',
+    testNotFound: 'Тест не найден',
+    errorLoadingTest: 'Ошибка загрузки теста',
+    answerAllQuestions: 'Пожалуйста, ответьте на все вопросы',
+    questionsLeft: 'осталось',
+    testCompleted: 'Тест завершен! Ваш результат',
+    errorSubmittingTest: 'Ошибка отправки теста',
   },
   ky: {
     // Header
@@ -166,6 +175,15 @@ export const translations = {
     goToTests: 'Тесттерге өтүү',
     result: 'Жыйынтык',
     checking: 'Текшерилүүдө',
+    
+    // Test taking page
+    alreadyTaken: 'Сиз бул тестти өткөн элесиз',
+    testNotFound: 'Тест табылган жок',
+    errorLoadingTest: 'Тестти жүктөөдө ката',
+    answerAllQuestions: 'Бардык суроолорго жооп бериңиз',
+    questionsLeft: 'калды',
+    testCompleted: 'Тест аяктады! Сиздин жыйынтык',
+    errorSubmittingTest: 'Тестти жөнөтүүдө ката',
   }
 }
 

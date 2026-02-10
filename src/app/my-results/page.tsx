@@ -24,6 +24,7 @@ interface TestAttempt {
 export default function MyResultsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { t } = useLanguage()
   const [attempts, setAttempts] = useState<TestAttempt[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -54,7 +55,7 @@ export default function MyResultsPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#f99703' }}></div>
-          <p style={{ color: '#111f5e', opacity: 0.7 }}>Загрузка результатов...</p>
+          <p style={{ color: '#111f5e', opacity: 0.7 }}>{t.loadingResults}</p>
         </div>
       </div>
     )
@@ -76,8 +77,11 @@ export default function MyResultsPage() {
               />
               <span className="font-bold" style={{ color: '#111f5e' }}>Okurmen</span>
             </Link>
-            <div className="text-sm" style={{ color: '#111f5e', opacity: 0.7 }}>
-              {session?.user?.name}
+            <div className="flex items-center gap-4">
+              <LanguageSwitcher />
+              <div className="text-sm" style={{ color: '#111f5e', opacity: 0.7 }}>
+                {session?.user?.name}
+              </div>
             </div>
           </div>
         </div>
@@ -94,13 +98,13 @@ export default function MyResultsPage() {
             onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
           >
             <ArrowLeft size={20} />
-            Назад на главную
+            {t.backToHome}
           </Link>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <h1 className="text-3xl font-bold mb-6" style={{ color: '#111f5e' }}>
-            Мои результаты
+            {t.myResultsTitle}
           </h1>
 
           {attempts.length === 0 ? (
@@ -109,10 +113,10 @@ export default function MyResultsPage() {
                 <FileText className="text-gray-400" size={32} />
               </div>
               <h3 className="text-xl font-semibold mb-2" style={{ color: '#111f5e' }}>
-                Нет пройденных тестов
+                {t.noCompletedTests}
               </h3>
               <p className="mb-6" style={{ color: '#111f5e', opacity: 0.7 }}>
-                Вы еще не прошли ни одного теста
+                {t.noCompletedTestsDesc}
               </p>
               <Link
                 href="/"
@@ -121,7 +125,7 @@ export default function MyResultsPage() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e08902'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f99703'}
               >
-                Перейти к тестам
+                {t.goToTests}
               </Link>
             </div>
           ) : (
@@ -165,14 +169,14 @@ export default function MyResultsPage() {
                             {attempt.score}%
                           </div>
                           <div className="text-xs mt-1" style={{ color: '#111f5e', opacity: 0.6 }}>
-                            Результат
+                            {t.result}
                           </div>
                         </div>
                       ) : (
                         <div className="text-center">
                           <CheckCircle2 className="mx-auto mb-1" size={32} style={{ color: '#f99703' }} />
                           <div className="text-xs" style={{ color: '#111f5e', opacity: 0.6 }}>
-                            Проверяется
+                            {t.checking}
                           </div>
                         </div>
                       )}

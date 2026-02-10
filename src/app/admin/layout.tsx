@@ -1,6 +1,16 @@
 import { auth, signOut } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Sidebar from "@/components/admin/Sidebar"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Админ Панель - Okurmen",
+  description: "Панель управления тестами и результатами",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+}
 
 export default async function AdminLayout({
   children,

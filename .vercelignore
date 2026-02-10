@@ -1,0 +1,7 @@
+scripts/
+.env.local
+.env.development
+.env.test
+node_modules/
+.next/
+.git/

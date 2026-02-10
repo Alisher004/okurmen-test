@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("")
@@ -60,6 +61,15 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
         <div>
+          <div className="flex justify-center mb-6">
+            <Image
+              src="/logo.png"
+              alt="Okurmen"
+              width={80}
+              height={80}
+              className="object-contain"
+            />
+          </div>
           <h2 className="text-center text-3xl font-bold text-gray-900">
             Вход в админку
           </h2>

@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { FileText, BarChart3, LogOut, LayoutDashboard } from "lucide-react"
+import { FileText, BarChart3, LogOut } from "lucide-react"
 
 interface SidebarProps {
   onLogout: () => void
@@ -20,15 +21,19 @@ export default function Sidebar({ onLogout }: SidebarProps) {
     <aside className="w-72 bg-white border-r border-gray-200 min-h-screen flex flex-col">
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-            <LayoutDashboard className="text-white" size={22} />
-          </div>
+        <Link href="/admin/tests" className="flex items-center gap-3 mb-1 hover:opacity-80 transition-opacity">
+          <Image
+            src="/logo.png"
+            alt="Okurmen"
+            width={40}
+            height={40}
+            className="object-contain"
+          />
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Админ Панель</h1>
-            <p className="text-xs text-gray-500">Система тестирования</p>
+            <h1 className="text-xl font-bold text-gray-900">Okurmen</h1>
+            <p className="text-xs text-gray-500">Админ Панель</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Navigation */}

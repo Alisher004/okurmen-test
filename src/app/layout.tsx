@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Okurmen - Вступительные тесты",
   description: "Образовательная платформа для обучения программированию",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  manifest: "/site.webmanifest",
+  themeColor: "#111f5e",
 };
 
 export default function RootLayout({

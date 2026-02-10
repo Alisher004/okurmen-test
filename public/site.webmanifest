@@ -1,0 +1,16 @@
+{
+  "name": "Okurmen - Вступительные тесты",
+  "short_name": "Okurmen",
+  "description": "Образовательная платформа для обучения программированию",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111f5e",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

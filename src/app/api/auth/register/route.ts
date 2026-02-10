@@ -19,16 +19,18 @@ export async function POST(request: Request) {
       )
     }
 
-    // Проверяем, существует ли тест
-    const test = await prisma.test.findUnique({
-      where: { id: testId }
-    })
+    // Проверяем, существует ли тест (если testId передан)
+    if (testId) {
+      const test = await prisma.test.findUnique({
+        where: { id: testId }
+      })
 
-    if (!test) {
-      return NextResponse.json(
-        { error: "Тест не найден" },
-        { status: 404 }
-      )
+      if (!test) {
+        return NextResponse.json(
+          { error: "Тест не найден" },
+          { status: 404 }
+        )
+      }
     }
 
     // Хешируем пароль

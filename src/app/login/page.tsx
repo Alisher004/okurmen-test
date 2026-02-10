@@ -30,14 +30,6 @@ export default function LoginPage() {
     type: "success"
   })
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/dashboard")
-    } else if (!testId && status === "unauthenticated") {
-      router.push("/")
-    }
-  }, [testId, router, status])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -63,7 +55,11 @@ export default function LoginPage() {
         })
         
         setTimeout(() => {
-          router.push("/dashboard")
+          if (testId) {
+            router.push(`/test/${testId}`)
+          } else {
+            router.push("/dashboard")
+          }
         }, 1000)
       }
     } catch (error) {
@@ -173,7 +169,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm mt-4" style={{ color: '#111f5e', opacity: 0.7 }}>
               {t.noAccount}{" "}
-              <Link href={`/register?testId=${testId}`} className="font-semibold" style={{ color: '#f99703' }}>
+              <Link href={testId ? `/register?testId=${testId}` : "/register"} className="font-semibold" style={{ color: '#f99703' }}>
                 {t.register}
               </Link>
             </p>

@@ -10,7 +10,7 @@ export default async function AdminLayout({
   const session = await auth()
 
   if (!session || session.user.role !== "ADMIN") {
-    redirect("/admin/login")
+    redirect("/admin-login")
   }
 
   return (
@@ -18,7 +18,7 @@ export default async function AdminLayout({
       <Sidebar
         onLogout={async () => {
           "use server"
-          await signOut({ redirectTo: "/admin/login" })
+          await signOut({ redirectTo: "/admin-login" })
         }}
       />
       <main className="flex-1 overflow-auto">

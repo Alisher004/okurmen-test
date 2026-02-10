@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -58,9 +59,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }
   },
   pages: {
-    signIn: "/admin/login"
+    signIn: "/admin-login"
   },
   session: {
     strategy: "jwt"
-  }
+  },
+  basePath: "/api/auth"
 })

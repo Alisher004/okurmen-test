@@ -43,7 +43,7 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
             </Link>
             <div className="flex items-center gap-4">
               <LanguageSwitcher />
-              {isStudent && (
+              {isStudent ? (
                 <Link
                   href="/my-results"
                   className="flex items-center gap-2 text-sm font-medium transition-colors"
@@ -54,6 +54,27 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
                   <FileText size={16} />
                   {t.myResults}
                 </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-sm font-medium transition-colors rounded-lg"
+                    style={{ color: '#111f5e', opacity: 0.7 }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                  >
+                    {t.login}
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
+                    style={{ backgroundColor: '#f99703' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e08902'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f99703'}
+                  >
+                    {t.register}
+                  </Link>
+                </>
               )}
             </div>
           </div>
@@ -66,10 +87,10 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
           <div className="text-center max-w-3xl mx-auto">
             <div className="mb-8 flex justify-center">
               <Image
-                src="/logo-for-cta.png"
+                src="/logo-for-main-page.svg"
                 alt="Okurmen"
-                width={300}
-                height={300}
+                width={350}
+                height={350}
                 className="object-contain"
               />
             </div>

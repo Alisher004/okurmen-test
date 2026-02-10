@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { signIn } from "next-auth/react"
+import { useState, useEffect } from "react"
+import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
 export default function AdminLoginPage() {
@@ -10,6 +10,14 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { data: session, status } = useSession()
+
+  useEffect(() => {
+    // Если уже авторизован как админ, редирект в админку
+    if (status === "authenticated" && session?.user?.role === "ADMIN") {
+      router.push("/admin/dashboard")
+    }
+  }, [status, session, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,7 +34,7 @@ export default function AdminLoginPage() {
       if (result?.error) {
         setError("Неверный email или пароль")
       } else {
-        router.push("/admin/tests")
+        router.push("/admin/dashboard")
         router.refresh()
       }
     } catch (err) {
@@ -34,6 +42,18 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Показываем загрузку пока проверяем сессию
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -61,7 +81,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="admin@example.com"
               />
             </div>
@@ -77,7 +97,7 @@ export default function AdminLoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
                 placeholder="••••••••"
               />
             </div>

@@ -12,7 +12,7 @@ export default auth((req) => {
     if (pathname === "/admin/login") {
       // Если уже залогинен как админ, редирект в админку
       if (isLoggedIn && userRole === "ADMIN") {
-        return NextResponse.redirect(new URL("/admin/dashboard", req.url))
+        return NextResponse.redirect(new URL("/admin/tests", req.url))
       }
       return NextResponse.next()
     }

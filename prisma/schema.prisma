@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Роли пользователей
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+// Типы вопросов
+enum QuestionType {
+  MULTIPLE_CHOICE // С вариантами ответов
+  TEXT            // Письменный ответ
+}
+
+// Модель пользователя (админ и ученик)
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(STUDENT)
+  
+  // Данные ученика
+  fullName  String
+  phone     String
+  age       Int
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Связи
+  testAttempts TestAttempt[]
+  
+  @@map("users")
+}
+
+// Модель теста
+model Test {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Связи
+  questions   Question[]
+  testAttempts TestAttempt[]
+  
+  @@map("tests")
+}
+
+// Модель вопроса
+model Question {
+  id       String       @id @default(cuid())
+  testId   String
+  type     QuestionType
+  question String
+  order    Int          // Порядок вопроса в тесте
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Связи
+  test     Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options  Option[]
+  answers  Answer[]
+  
+  @@map("questions")
+}
+
+// Модель варианта ответа (для вопросов с вариантами)
+model Option {
+  id         String  @id @default(cuid())
+  questionId String
+  text       String
+  isCorrect  Boolean @default(false)
+  order      Int     // Порядок варианта
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Связи
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@map("options")
+}
+
+// Модель попытки прохождения теста
+model TestAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  testId      String
+  score       Float?   // Оценка (может быть null пока не проверено)
+  completedAt DateTime @default(now())
+  
+  // Связи
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  test    Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  answers Answer[]
+  
+  // Ученик может сдать тест только один раз
+  @@unique([userId, testId])
+  @@map("test_attempts")
+}
+
+// Модель ответа ученика
+model Answer {
+  id            String  @id @default(cuid())
+  testAttemptId String
+  questionId    String
+  
+  // Для вопросов с вариантами - ID выбранного варианта
+  selectedOptionId String?
+  
+  // Для письменных вопросов - текст ответа
+  textAnswer    String?
+  
+  isCorrect     Boolean? // Правильность ответа (может быть null для письменных)
+  
+  createdAt DateTime @default(now())
+  
+  // Связи
+  testAttempt TestAttempt @relation(fields: [testAttemptId], references: [id], onDelete: Cascade)
+  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  @@map("answers")
+}

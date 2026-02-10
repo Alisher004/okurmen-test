@@ -35,7 +35,7 @@ export const translations = {
     questions: 'вопросов',
     completed: 'прошли',
     takeTest: 'Сдать тест',
-    testCompleted: 'Тест пройден',
+    testCompletedBadge: 'Тест пройден',
     
     // Footer
     allRightsReserved: 'Все права защищены.',
@@ -127,7 +127,7 @@ export const translations = {
     questions: 'суроолор',
     completed: 'өттү',
     takeTest: 'Тест тапшыруу',
-    testCompleted: 'Тест өттү',
+    testCompletedBadge: 'Тест өттү',
     
     // Footer
     allRightsReserved: 'Бардык укуктар корголгон.',

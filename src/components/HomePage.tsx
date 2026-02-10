@@ -251,7 +251,7 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
                     {userAttempts[test.id] ? (
                       <>
                         <CheckCircle2 size={20} />
-                        {t.testCompleted}
+                        {t.testCompletedBadge}
                       </>
                     ) : (
                       <>

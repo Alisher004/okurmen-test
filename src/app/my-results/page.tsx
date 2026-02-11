@@ -10,6 +10,7 @@ import { formatDistanceToNow } from "date-fns"
 import { ru } from "date-fns/locale"
 import { useLanguage } from "@/contexts/LanguageContext"
 import LanguageSwitcher from "@/components/LanguageSwitcher"
+import MobileMenu from "@/components/MobileMenu"
 
 interface TestAttempt {
   id: string
@@ -50,6 +51,10 @@ export default function MyResultsPage() {
     }
   }
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/" })
+  }
+
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -67,7 +72,7 @@ export default function MyResultsPage() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-3">
               <Image
                 src="/logo.png"
                 alt="Okurmen"
@@ -78,10 +83,31 @@ export default function MyResultsPage() {
               <span className="font-bold" style={{ color: '#111f5e' }}>Okurmen</span>
             </Link>
             <div className="flex items-center gap-4">
+<<<<<<< HEAD
               <LanguageSwitcher />
               <div className="text-sm" style={{ color: '#111f5e', opacity: 0.7 }}>
                 {session?.user?.name}
               </div>
+=======
+              <div className="hidden md:flex items-center gap-4">
+                <LanguageSwitcher />
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  style={{ color: '#111f5e', opacity: 0.7 }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                >
+                  <LogOut size={16} />
+                  {t.logout}
+                </button>
+              </div>
+              <MobileMenu userName={session?.user?.name || ''} isAuthenticated={true} />
+            </div>
+          </div>
+        </div>
+      </header>
+>>>>>>> 16f0d88 (fix)
             </div>
           </div>
         </div>
@@ -91,7 +117,7 @@ export default function MyResultsPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Link
-            href="/"
+            href="/dashboard"
             className="inline-flex items-center gap-2 transition-colors"
             style={{ color: '#111f5e', opacity: 0.7 }}
             onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
@@ -119,7 +145,7 @@ export default function MyResultsPage() {
                 {t.noCompletedTestsDesc}
               </p>
               <Link
-                href="/"
+                href="/dashboard"
                 className="inline-flex items-center gap-2 px-6 py-3 text-white rounded-xl transition-colors font-semibold"
                 style={{ backgroundColor: '#f99703' }}
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e08902'}

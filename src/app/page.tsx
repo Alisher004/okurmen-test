@@ -40,6 +40,7 @@ export default async function Page() {
       tests={tests} 
       userAttempts={userAttempts}
       isStudent={session?.user?.role === "STUDENT"}
+      userName={session?.user?.name || undefined}
     />
   )
 }

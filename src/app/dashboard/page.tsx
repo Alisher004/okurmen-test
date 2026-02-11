@@ -8,6 +8,7 @@ import Link from "next/link"
 import { BookOpen, Users, ArrowRight, LogOut, FileText } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import LanguageSwitcher from "@/components/LanguageSwitcher"
+import MobileMenu from "@/components/MobileMenu"
 
 interface Test {
   id: string
@@ -80,27 +81,30 @@ export default function DashboardPage() {
               <span className="text-xl font-bold" style={{ color: '#111f5e' }}>Okurmen</span>
             </Link>
             <div className="flex items-center gap-4">
-              <LanguageSwitcher />
-              <Link
-                href="/my-results"
-                className="flex items-center gap-2 text-sm font-medium transition-colors"
-                style={{ color: '#111f5e', opacity: 0.7 }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-              >
-                <FileText size={16} />
-                {t.myResults}
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                style={{ color: '#111f5e', opacity: 0.7 }}
-                onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-              >
-                <LogOut size={16} />
-                {t.logout}
-              </button>
+              <div className="hidden md:flex items-center gap-4">
+                <LanguageSwitcher />
+                <Link
+                  href="/my-results"
+                  className="flex items-center gap-2 text-sm font-medium transition-colors"
+                  style={{ color: '#111f5e', opacity: 0.7 }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                >
+                  <FileText size={16} />
+                  {t.myResults}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  style={{ color: '#111f5e', opacity: 0.7 }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
+                >
+                  <LogOut size={16} />
+                  {t.logout}
+                </button>
+              </div>
+              <MobileMenu userName={session?.user?.name || ''} isAuthenticated={true} />
             </div>
           </div>
         </div>

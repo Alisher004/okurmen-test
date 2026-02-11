@@ -5,6 +5,7 @@ import Image from "next/image"
 import { BookOpen, Users, Award, ArrowRight, CheckCircle2, FileText } from "lucide-react"
 import { useLanguage } from "@/contexts/LanguageContext"
 import LanguageSwitcher from "./LanguageSwitcher"
+import MobileMenu from "./MobileMenu"
 
 interface Test {
   id: string
@@ -20,9 +21,10 @@ interface HomePageProps {
   tests: Test[]
   userAttempts: Record<string, boolean>
   isStudent: boolean
+  userName?: string
 }
 
-export default function HomePage({ tests, userAttempts, isStudent }: HomePageProps) {
+export default function HomePage({ tests, userAttempts, isStudent, userName }: HomePageProps) {
   const { t } = useLanguage()
 
   return (
@@ -42,39 +44,28 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
               <span className="text-xl font-bold text-gray-900">Okurmen</span>
             </Link>
             <div className="flex items-center gap-4">
-              <LanguageSwitcher />
-              {isStudent ? (
-                <Link
-                  href="/my-results"
-                  className="flex items-center gap-2 text-sm font-medium transition-colors"
-                  style={{ color: '#111f5e', opacity: 0.7 }}
-                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-                >
-                  <FileText size={16} />
-                  {t.myResults}
-                </Link>
-              ) : (
-                <>
+              <div className="hidden md:flex items-center gap-4">
+                <LanguageSwitcher />
+                {isStudent && (
                   <Link
-                    href="/login"
-                    className="px-4 py-2 text-sm font-medium transition-colors rounded-lg"
+                    href="/my-results"
+                    className="flex items-center gap-2 text-sm font-medium transition-colors"
                     style={{ color: '#111f5e', opacity: 0.7 }}
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
                   >
-                    {t.login}
+                    <FileText size={16} />
+                    {t.myResults}
                   </Link>
-                  <Link
-                    href="/register"
-                    className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors"
-                    style={{ backgroundColor: '#f99703' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e08902'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f99703'}
-                  >
-                    {t.register}
-                  </Link>
-                </>
+                )}
+              </div>
+              {/* Mobile: Show language switcher for unauthenticated, burger menu for authenticated */}
+              {isStudent ? (
+                <MobileMenu userName={userName} isAuthenticated={true} />
+              ) : (
+                <div className="md:hidden">
+                  <LanguageSwitcher />
+                </div>
               )}
             </div>
           </div>
@@ -94,7 +85,7 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
                 className="object-contain"
               />
             </div>
-            <h1 className="text-5xl font-bold mb-6 leading-tight" style={{ color: '#111f5e' }}>
+            <h1 className="text-4xl font-bold mb-6 leading-tight" style={{ color: '#111f5e' }}>
               {t.heroTitle}
             </h1>
             <p className="text-xl mb-8 leading-relaxed" style={{ color: '#111f5e', opacity: 0.8 }}>
@@ -201,13 +192,12 @@ export default function HomePage({ tests, userAttempts, isStudent }: HomePagePro
               </p>
             </div>
           ) : (
-            <div className={`grid gap-6 ${
-              tests.length === 1 
-                ? "md:grid-cols-1 max-w-md mx-auto" 
-                : tests.length === 2 
-                ? "md:grid-cols-2 max-w-3xl mx-auto" 
-                : "md:grid-cols-2 lg:grid-cols-3"
-            }`}>
+            <div className={`grid gap-6 ${tests.length === 1
+                ? "md:grid-cols-1 max-w-md mx-auto"
+                : tests.length === 2
+                  ? "md:grid-cols-2 max-w-3xl mx-auto"
+                  : "md:grid-cols-2 lg:grid-cols-3"
+              }`}>
               {tests.map((test) => (
                 <div
                   key={test.id}

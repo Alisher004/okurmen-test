@@ -83,31 +83,10 @@ export default function MyResultsPage() {
               <span className="font-bold" style={{ color: '#111f5e' }}>Okurmen</span>
             </Link>
             <div className="flex items-center gap-4">
-<<<<<<< HEAD
               <LanguageSwitcher />
               <div className="text-sm" style={{ color: '#111f5e', opacity: 0.7 }}>
                 {session?.user?.name}
               </div>
-=======
-              <div className="hidden md:flex items-center gap-4">
-                <LanguageSwitcher />
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  style={{ color: '#111f5e', opacity: 0.7 }}
-                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
-                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0.7'}
-                >
-                  <LogOut size={16} />
-                  {t.logout}
-                </button>
-              </div>
-              <MobileMenu userName={session?.user?.name || ''} isAuthenticated={true} />
-            </div>
-          </div>
-        </div>
-      </header>
->>>>>>> 16f0d88 (fix)
             </div>
           </div>
         </div>

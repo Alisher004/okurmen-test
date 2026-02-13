@@ -7,12 +7,13 @@ import { FileText } from "lucide-react"
 interface EditTestModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (data: { title: string; description: string; isActive: boolean }) => void
+  onSave: (data: { title: string; description: string; isActive: boolean; timeLimit: number | null }) => void
   test: {
     id: string
     title: string
     description: string | null
     isActive: boolean
+    timeLimit: number | null
   }
   isLoading?: boolean
 }
@@ -27,10 +28,16 @@ export default function EditTestModal({
   const [title, setTitle] = useState(test.title)
   const [description, setDescription] = useState(test.description || "")
   const [isActive, setIsActive] = useState(test.isActive)
+  const [timeLimit, setTimeLimit] = useState<string>(test.timeLimit?.toString() || "")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ title, description, isActive })
+    onSave({ 
+      title, 
+      description, 
+      isActive,
+      timeLimit: timeLimit ? parseInt(timeLimit) : null
+    })
   }
 
   return (
@@ -75,6 +82,24 @@ export default function EditTestModal({
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               placeholder="Краткое описание теста"
             />
+          </div>
+
+          <div>
+            <label htmlFor="edit-timeLimit" className="block text-sm font-semibold text-gray-900 mb-2">
+              Ограничение по времени (минуты)
+            </label>
+            <input
+              type="number"
+              id="edit-timeLimit"
+              min="1"
+              value={timeLimit}
+              onChange={(e) => setTimeLimit(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              placeholder="Без ограничения"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Оставьте пустым для теста без ограничения
+            </p>
           </div>
 
           <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-xl border border-blue-100">

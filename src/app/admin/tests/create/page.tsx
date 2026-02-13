@@ -13,6 +13,7 @@ export default function CreateTestPage() {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [isActive, setIsActive] = useState(true)
+  const [timeLimit, setTimeLimit] = useState<string>("")
   const [toast, setToast] = useState<{
     isOpen: boolean
     message: string
@@ -31,7 +32,12 @@ export default function CreateTestPage() {
       const response = await fetch("/api/admin/tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, isActive })
+        body: JSON.stringify({ 
+          title, 
+          description, 
+          isActive,
+          timeLimit: timeLimit ? parseInt(timeLimit) : null
+        })
       })
 
       if (!response.ok) throw new Error("Ошибка создания теста")
@@ -105,6 +111,24 @@ export default function CreateTestPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Краткое описание теста"
                 />
+              </div>
+
+              <div>
+                <label htmlFor="timeLimit" className="block text-sm font-semibold text-gray-900 mb-3">
+                  Ограничение по времени (минуты)
+                </label>
+                <input
+                  type="number"
+                  id="timeLimit"
+                  min="1"
+                  value={timeLimit}
+                  onChange={(e) => setTimeLimit(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="Оставьте пустым для теста без ограничения"
+                />
+                <p className="text-sm text-gray-500 mt-2">
+                  Если не указано, тест будет без ограничения по времени
+                </p>
               </div>
 
               <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-100">

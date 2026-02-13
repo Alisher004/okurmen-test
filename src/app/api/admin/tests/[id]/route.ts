@@ -56,14 +56,15 @@ export async function PATCH(
   try {
     const { id } = await params
     const body = await request.json()
-    const { title, description, isActive } = body
+    const { title, description, isActive, timeLimit } = body
 
     const test = await prisma.test.update({
       where: { id },
       data: {
         title,
         description: description || null,
-        isActive
+        isActive,
+        timeLimit: timeLimit || null
       }
     })
 

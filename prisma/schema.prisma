@@ -48,6 +48,7 @@ model Test {
   title       String
   description String?
   isActive    Boolean  @default(true)
+  timeLimit   Int?     // Время на тест в минутах (null = без ограничения)
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

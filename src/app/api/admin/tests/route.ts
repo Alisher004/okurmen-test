@@ -11,13 +11,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    const { title, description, isActive } = body
+    const { title, description, isActive, timeLimit } = body
 
     const test = await prisma.test.create({
       data: {
         title,
         description: description || null,
-        isActive: isActive ?? true
+        isActive: isActive ?? true,
+        timeLimit: timeLimit || null
       }
     })
 

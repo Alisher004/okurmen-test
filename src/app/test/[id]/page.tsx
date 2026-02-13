@@ -5,10 +5,9 @@ import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, ArrowRight, CheckCircle2, Clock } from "lucide-react"
+import { Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react"
 import Toast from "@/components/ui/Toast"
 import ReactMarkdown from "react-markdown"
-import { useLanguage } from "@/contexts/LanguageContext"
 
 interface Option {
   id: string
@@ -28,19 +27,21 @@ interface Test {
   id: string
   title: string
   description: string | null
+  timeLimit: number | null
   questions: Question[]
 }
 
 export default function TestPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const { t } = useLanguage()
   const [testId, setTestId] = useState<string>("")
   const [test, setTest] = useState<Test | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null)
+  const [testResult, setTestResult] = useState<{ score: number } | null>(null)
   const [toast, setToast] = useState<{
     isOpen: boolean
     message: string
@@ -63,6 +64,23 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
     }
   }, [status, testId, router])
 
+  // Timer effect
+  useEffect(() => {
+    if (timeRemaining === null || timeRemaining <= 0 || testResult) return
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev === null || prev <= 1) {
+          handleSubmit(true) // Auto-submit when time runs out
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [timeRemaining, testResult])
+
   const loadTest = async () => {
     try {
       // Check if user already took this test
@@ -72,26 +90,31 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
       if (attemptData.hasAttempt) {
         setToast({
           isOpen: true,
-          message: t.alreadyTaken,
+          message: "Вы уже прошли этот тест",
           type: "error"
         })
-        setTimeout(() => router.push("/"), 2000)
+        setTimeout(() => router.push("/dashboard"), 2000)
         return
       }
 
       // Load test data
       const response = await fetch(`/api/test/${testId}`)
-      if (!response.ok) throw new Error(t.testNotFound)
+      if (!response.ok) throw new Error("Тест не найден")
 
       const data = await response.json()
       setTest(data)
+      
+      // Set timer if test has time limit
+      if (data.timeLimit) {
+        setTimeRemaining(data.timeLimit * 60) // Convert minutes to seconds
+      }
     } catch (error: any) {
       setToast({
         isOpen: true,
-        message: error.message || t.errorLoadingTest,
+        message: error.message || "Ошибка загрузки теста",
         type: "error"
       })
-      setTimeout(() => router.push("/"), 2000)
+      setTimeout(() => router.push("/dashboard"), 2000)
     } finally {
       setLoading(false)
     }
@@ -107,21 +130,15 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
     }
   }
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1)
-    }
-  }
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (autoSubmit = false) => {
     if (!test) return
 
-    // Check if all questions are answered
-    const unansweredCount = test.questions.filter(q => !answers[q.id]).length
-    if (unansweredCount > 0) {
+    // Check if current question is answered
+    const currentQuestion = test.questions[currentQuestionIndex]
+    if (!answers[currentQuestion.id] && !autoSubmit) {
       setToast({
         isOpen: true,
-        message: `${t.answerAllQuestions} (${t.questionsLeft}: ${unansweredCount})`,
+        message: "Пожалуйста, ответьте на вопрос",
         type: "error"
       })
       return
@@ -136,21 +153,14 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
         body: JSON.stringify({ answers })
       })
 
-      if (!response.ok) throw new Error(t.errorSubmittingTest)
+      if (!response.ok) throw new Error("Ошибка отправки теста")
 
       const result = await response.json()
-
-      setToast({
-        isOpen: true,
-        message: `${t.testCompleted}: ${result.score}%`,
-        type: "success"
-      })
-
-      setTimeout(() => router.push("/"), 3000)
+      setTestResult(result)
     } catch (error: any) {
       setToast({
         isOpen: true,
-        message: error.message || t.errorSubmittingTest,
+        message: error.message || "Ошибка отправки теста",
         type: "error"
       })
     } finally {
@@ -158,18 +168,80 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
     }
   }
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const getScoreColor = (score: number) => {
+    if (score >= 70) return { bg: '#dcfce7', text: '#166534', border: '#86efac' }
+    if (score >= 50) return { bg: '#fef3c7', text: '#92400e', border: '#fcd34d' }
+    return { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' }
+  }
+
   if (loading || status === "loading") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">{t.loadingTest}</p>
+          <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin mx-auto mb-4" style={{ borderColor: '#f99703' }}></div>
+          <p style={{ color: '#111f5e', opacity: 0.7 }}>Загрузка теста...</p>
         </div>
       </div>
     )
   }
 
   if (!test) return null
+
+  // Show result screen
+  if (testResult) {
+    const colors = getScoreColor(testResult.score)
+    
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-lg border-2 p-8 text-center" style={{ borderColor: colors.border }}>
+          <div className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center" style={{ backgroundColor: colors.bg }}>
+            {testResult.score >= 70 ? (
+              <CheckCircle2 size={48} style={{ color: colors.text }} />
+            ) : testResult.score >= 50 ? (
+              <AlertCircle size={48} style={{ color: colors.text }} />
+            ) : (
+              <XCircle size={48} style={{ color: colors.text }} />
+            )}
+          </div>
+          
+          <h1 className="text-3xl font-bold mb-2" style={{ color: '#111f5e' }}>
+            Тест завершен!
+          </h1>
+          
+          <p className="text-lg mb-6" style={{ color: '#111f5e', opacity: 0.7 }}>
+            Ваш результат:
+          </p>
+          
+          <div className="text-6xl font-bold mb-8" style={{ color: colors.text }}>
+            {testResult.score}%
+          </div>
+          
+          <div className="space-y-3">
+            <Link
+              href="/dashboard"
+              className="block w-full px-6 py-4 text-white rounded-xl transition-colors font-semibold"
+              style={{ backgroundColor: '#f99703' }}
+            >
+              Вернуться к тестам
+            </Link>
+            <Link
+              href="/my-results"
+              className="block w-full px-6 py-4 border-2 rounded-xl transition-colors font-semibold"
+              style={{ borderColor: '#f99703', color: '#f99703' }}
+            >
+              Посмотреть все результаты
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const currentQuestion = test.questions[currentQuestionIndex]
   const progress = ((currentQuestionIndex + 1) / test.questions.length) * 100
@@ -182,7 +254,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
         <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              <Link href="/" className="flex items-center gap-3">
+              <Link href="/dashboard" className="flex items-center gap-3">
                 <Image
                   src="/logo.png"
                   alt="Okurmen"
@@ -190,13 +262,20 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                   height={32}
                   className="object-contain"
                 />
-                <span className="font-bold text-gray-900">Okurmen</span>
+                <span className="font-bold" style={{ color: '#111f5e' }}>Okurmen</span>
               </Link>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Clock size={16} />
-                <span>
+              <div className="flex items-center gap-4">
+                {timeRemaining !== null && (
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold ${
+                    timeRemaining < 60 ? 'bg-red-100 text-red-700' : 'bg-blue-50'
+                  }`} style={{ color: timeRemaining >= 60 ? '#111f5e' : undefined }}>
+                    <Clock size={20} />
+                    <span>{formatTime(timeRemaining)}</span>
+                  </div>
+                )}
+                <div className="text-sm font-medium" style={{ color: '#111f5e', opacity: 0.7 }}>
                   {currentQuestionIndex + 1} / {test.questions.length}
-                </span>
+                </div>
               </div>
             </div>
           </div>
@@ -279,7 +358,7 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                     onChange={(e) =>
                       handleAnswer(currentQuestion.id, e.target.value)
                     }
-                    placeholder={t.enterAnswer}
+                    placeholder="Введите ваш ответ..."
                     rows={6}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl transition-all resize-none"
                     style={{ 
@@ -294,19 +373,10 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-              <button
-                onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
-                className="flex items-center gap-2 px-6 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-              >
-                <ArrowLeft size={20} />
-                {t.back}
-              </button>
-
+            <div className="flex items-center justify-end pt-6 border-t border-gray-200">
               {isLastQuestion ? (
                 <button
-                  onClick={handleSubmit}
+                  onClick={() => handleSubmit(false)}
                   disabled={submitting}
                   className="flex items-center gap-2 px-6 py-3 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                   style={{ backgroundColor: '#10b981' }}
@@ -314,52 +384,21 @@ export default function TestPage({ params }: { params: Promise<{ id: string }> }
                   onMouseLeave={(e) => !submitting && (e.currentTarget.style.backgroundColor = '#10b981')}
                 >
                   <CheckCircle2 size={20} />
-                  {submitting ? t.submitting : t.finishTest}
+                  {submitting ? "Отправка..." : "Завершить тест"}
                 </button>
               ) : (
                 <button
                   onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-3 text-white rounded-xl transition-colors font-semibold"
+                  disabled={!answers[currentQuestion.id]}
+                  className="flex items-center gap-2 px-6 py-3 text-white rounded-xl transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: '#f99703' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e08902'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f99703'}
+                  onMouseEnter={(e) => answers[currentQuestion.id] && (e.currentTarget.style.backgroundColor = '#e08902')}
+                  onMouseLeave={(e) => answers[currentQuestion.id] && (e.currentTarget.style.backgroundColor = '#f99703')}
                 >
-                  {t.next}
-                  <ArrowRight size={20} />
+                  Далее
+                  <CheckCircle2 size={20} />
                 </button>
               )}
-            </div>
-          </div>
-
-          {/* Question Navigator */}
-          <div className="mt-6 bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-sm font-semibold mb-4" style={{ color: '#111f5e' }}>
-              {t.questionNavigation}
-            </h3>
-            <div className="grid grid-cols-10 gap-2">
-              {test.questions.map((q, index) => (
-                <button
-                  key={q.id}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                  className="aspect-square rounded-lg font-semibold text-sm transition-all"
-                  style={{
-                    backgroundColor: index === currentQuestionIndex
-                      ? '#f99703'
-                      : answers[q.id]
-                      ? '#dcfce7'
-                      : '#f3f4f6',
-                    color: index === currentQuestionIndex
-                      ? '#ffffff'
-                      : answers[q.id]
-                      ? '#166534'
-                      : '#6b7280',
-                    borderWidth: answers[q.id] && index !== currentQuestionIndex ? '1px' : '0',
-                    borderColor: answers[q.id] && index !== currentQuestionIndex ? '#86efac' : 'transparent'
-                  }}
-                >
-                  {index + 1}
-                </button>
-              ))}
             </div>
           </div>
         </div>

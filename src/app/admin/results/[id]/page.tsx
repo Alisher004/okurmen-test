@@ -54,6 +54,7 @@ interface Test {
   id: string
   title: string
   description: string | null
+  timeLimit: number | null
   questions: Question[]
 }
 

@@ -19,6 +19,7 @@ interface TestAttempt {
   test: {
     title: string
     description: string | null
+    timeLimit: number | null
   }
 }
 

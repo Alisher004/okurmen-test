@@ -20,7 +20,8 @@ export async function GET() {
         test: {
           select: {
             title: true,
-            description: true
+            description: true,
+            timeLimit: true
           }
         }
       },

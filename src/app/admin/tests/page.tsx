@@ -32,7 +32,7 @@ export default async function TestsPage() {
           </Link>
         </div>
 
-        <TestsList tests={tests} />
+        <TestsList tests={tests as any} />
       </div>
     </div>
   )

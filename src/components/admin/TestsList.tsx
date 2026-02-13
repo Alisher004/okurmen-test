@@ -12,6 +12,7 @@ interface Test {
   id: string
   title: string
   description: string | null
+  timeLimit: number | null
   isActive: boolean
   questions: any[]
   _count: {
@@ -261,7 +262,13 @@ export default function TestsList({ tests: initialTests }: { tests: Test[] }) {
           isOpen={editModal.isOpen}
           onClose={closeEditModal}
           onSave={handleUpdate}
-          test={editModal.test}
+          test={{
+            id: editModal.test.id,
+            title: editModal.test.title,
+            description: editModal.test.description,
+            isActive: editModal.test.isActive,
+            timeLimit: editModal.test.timeLimit
+          }}
           isLoading={updating !== null}
         />
       )}

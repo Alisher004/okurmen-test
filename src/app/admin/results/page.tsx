@@ -64,6 +64,7 @@ export default async function ResultsPage() {
               {attempts.map((attempt) => (
                 <tr key={attempt.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
+                    <Link href={`/admin/results/${attempt.id}`} className="block">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                         <User className="text-blue-600" size={20} />
@@ -77,6 +78,7 @@ export default async function ResultsPage() {
                         </div>
                       </div>
                     </div>
+                    </Link>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">{attempt.test.title}</div>
